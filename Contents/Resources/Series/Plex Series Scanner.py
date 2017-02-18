@@ -340,11 +340,30 @@ def find_data(atom, name):
     return data_atom.attrs['data']
 
 import sys
-    
+
+
+# This method tries to simulate what the Plex Media Scanner does when you scan a section.
+# It is a recursive method that calls Scan() for every directory found in the content root
+def scan_all(root, path, media):
+  dir = os.path.join(root, path)
+  dirItems = os.listdir(dir)
+  files =[]
+  subdirs = []
+  for item in dirItems:
+    itemPath = os.path.join(dir, item)
+    if os.path.isdir(itemPath):
+      subdirs.append(itemPath)
+    else:
+      files.append(itemPath)
+
+  Scan(path, files, media, subdirs, root=root)
+  for subdir in subdirs:
+    # Get subdir name with root striped out
+    subdirRelative = subdir[len(root) + 1:]
+    scan_all(root, subdirRelative, media)
+
 if __name__ == '__main__':
-  print "Hello, world!"
-  path = sys.argv[1]
-  files = [os.path.join(path, file) for file in os.listdir(path)]
   media = []
-  Scan(path[1:], files, media, [])
-  print "Media:", media
+  scan_all(sys.argv[1], "", media)
+  for m in media:
+    print m

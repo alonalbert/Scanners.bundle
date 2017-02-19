@@ -9,6 +9,7 @@ episode_regexps = [
     '(?P<show>.*?)[sS](?P<season>[0-9]+)[\._ ]*[eE](?P<ep>[0-9]+)[\._ ]*([- ]?[sS](?P<secondSeason>[0-9]+))?([- ]?[Ee+](?P<secondEp>[0-9]+))?', # S03E04-E05
     '(?P<show>.*?)[sS](?P<season>[0-9]{2})[\._\- ]+(?P<ep>[0-9]+)',                                                            # S03-03
     '(?P<show>.*?)([^0-9]|^)(?P<season>(19[3-9][0-9]|20[0-5][0-9]|[0-9]{1,2}))[Xx](?P<ep>[0-9]+)((-[0-9]+)?[Xx](?P<secondEp>[0-9]+))?',  # 3x03, 3x03-3x04, 3x03x04
+    '(?P<show>.*?)(?P<season>part)[\._\- ]?(?P<ep>[0-9]+)',  # Part1 (Miniseries, equivalent to S01E01)
     '(.*?)(^|[\._\- ])+(?P<season>sp)(?P<ep>[0-9]{2})([\._\- ]|$)+',  # SP01 (Special 01, equivalent to S00E01)
     '(.*?)[^0-9a-z](?P<season>[0-9]{1,2})(?P<ep>[0-9]{2})([\.\-][0-9]+(?P<secondEp>[0-9]{2})([ \-_\.]|$)[\.\-]?)?([^0-9a-z%]|$)' # .602.
   ]
@@ -63,6 +64,8 @@ def Scan(path, files, mediaList, subdirs, language=None, root=None):
           season = match.group('season')
           if season.lower() == 'sp':
             season = 0
+          elif season.lower() == 'part':
+            season = 1
           episode = int(match.group('ep'))
           endEpisode = episode
           if match.groupdict().has_key('secondEp') and match.group('secondEp'):
@@ -249,6 +252,8 @@ def Scan(path, files, mediaList, subdirs, language=None, root=None):
               the_season = match.group('season')
               if the_season.lower() == 'sp':
                 the_season = 0
+              elif the_season.lower() == 'part':
+                the_season = 1
               else:
                 the_season = int(the_season)
               episode = int(match.group('ep'))

@@ -14,8 +14,8 @@ episode_regexps = [
   ]
 
 date_regexps = [
-    '(?P<year>[0-9]{4})[^0-9a-zA-Z]+(?P<month>[0-9]{2})[^0-9a-zA-Z]+(?P<day>[0-9]{2})([^0-9]|$)',                # 2009-02-10
-    '(?P<month>[0-9]{2})[^0-9a-zA-Z]+(?P<day>[0-9]{2})[^0-9a-zA-Z(]+(?P<year>[0-9]{4})([^0-9a-zA-Z]|$)', # 02-10-2009
+    '(?P<show>.*?)(?P<year>[0-9]{4})[^0-9a-zA-Z]+(?P<month>[0-9]{2})[^0-9a-zA-Z]+(?P<day>[0-9]{2})([^0-9]|$)',                # 2009-02-10
+    '(?P<show>.*?)(?P<month>[0-9]{2})[^0-9a-zA-Z]+(?P<day>[0-9]{2})[^0-9a-zA-Z(]+(?P<year>[0-9]{4})([^0-9a-zA-Z]|$)', # 02-10-2009
   ]
 
 standalone_episode_regexs = [
@@ -76,7 +76,20 @@ def Scan(path, files, mediaList, subdirs, language=None, root=None):
               tv_show.display_offset = (ep-episode)*100/(endEpisode-episode+1)
               tv_show.parts.append(i)
               mediaList.append(tv_show)
-  
+      for rx in date_regexps:
+        match = re.search(rx, file)
+        if match:
+          show = VideoFiles.CleanName(match.group('show'))[0]
+          year = int(match.group('year'))
+          month = int(match.group('month'))
+          day = int(match.group('day'))
+          # Use the year as the season.
+          tv_show = Media.Episode(show, year, None, None, None)
+          tv_show.released_at = '%d-%02d-%02d' % (year, month, day)
+          tv_show.parts.append(i)
+          mediaList.append(tv_show)
+          break
+
   elif len(paths) > 0 and len(paths[0]) > 0:
     done = False
         
